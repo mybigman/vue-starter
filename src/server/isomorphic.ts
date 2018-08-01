@@ -81,6 +81,10 @@ export default (context: IServerContext) => {
     .onReady(() => {
       const matchedComponents: Component[] = [App as Component].concat(router.getMatchedComponents());
 
+      if (router.currentRoute.fullPath !== context.url) {
+        return reject({ code: 302, path: router.currentRoute.fullPath });
+      }
+
       if (matchedComponents.length === 1) {
         return reject({ code: 404 });
       }
@@ -95,12 +99,7 @@ export default (context: IServerContext) => {
       }))
       .then(() => {
         context.state = store.state;
-
-        if (router.currentRoute.fullPath !== context.url) {
-          reject({ code: 302, path: router.currentRoute.fullPath });
-        } else {
-          resolve(app);
-        }
+        resolve(app);
       })
       .catch(reject);
 
